@@ -3,6 +3,9 @@ package com.example.cinehub.data.base;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -10,8 +13,10 @@ import lombok.Setter;
 public abstract class BaseEntity {
 
     @Id
-    @GeneratedValue
-    @Column(name = "id", updatable = false, nullable = false, unique = true, columnDefinition = "VARCHAR(36)")
-    private String id;
-
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID"
+    )
+    @Column(name = "id", updatable = false, nullable = false, unique = true, columnDefinition = "uuid DEFAULT gen_random_uuid()")
+    private UUID id;
 }

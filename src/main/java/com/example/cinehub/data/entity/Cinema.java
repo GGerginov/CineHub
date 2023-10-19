@@ -14,6 +14,7 @@ public class Cinema extends BaseEntity {
 
     private String name;
     private String address;
+    private String slug;
 
     @ManyToOne
     @JoinColumn(name = "city_id")

@@ -2,6 +2,8 @@ package com.example.cinehub.service.impl;
 
 import com.example.cinehub.data.dtos.CinemaDto;
 import com.example.cinehub.data.entity.Cinema;
+import com.example.cinehub.exception.ApiException;
+import com.example.cinehub.exception.jsonMessages.ErrorMessages;
 import com.example.cinehub.repository.CinemaRepository;
 import com.example.cinehub.service.CinemaService;
 import org.modelmapper.ModelMapper;
@@ -32,8 +34,23 @@ public class CinemaServiceImpl implements CinemaService {
         Type listOfCinemaDtoType = new TypeToken<List<CinemaDto>>() {
         }.getType();
 
-        List<CinemaDto> cinemaDtos = this.modelMapper.map(cinemas,listOfCinemaDtoType);
-
-        return cinemaDtos;
+        return this.modelMapper.map(cinemas,listOfCinemaDtoType);
     }
+
+    @Override
+    public List<CinemaDto> findCinemasByTownName(String townName) throws ApiException {
+
+        List<Cinema> cinemaByCityName = cinemaRepository.findByCityNameIgnoreCase(townName);
+
+        if (cinemaByCityName.isEmpty()){
+            throw new ApiException(ErrorMessages.CINEMA_NOT_FOUND);
+        }
+
+        Type listOfCinemaDtoType = new TypeToken<List<CinemaDto>>() {
+        }.getType();
+
+        return this.modelMapper.map(cinemaByCityName,listOfCinemaDtoType);
+    }
+
+
 }

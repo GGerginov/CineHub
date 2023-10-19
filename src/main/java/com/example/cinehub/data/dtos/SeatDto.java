@@ -1,9 +1,25 @@
 package com.example.cinehub.data.dtos;
 
+import com.example.cinehub.data.entity.Seat;
+import lombok.*;
+
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * DTO for {@link com.example.cinehub.data.entity.Seat}
+ * DTO for {@link Seat}
  */
-public record SeatDto(String id, Integer rowNumber, Integer seatNumber, RoomDto room) implements Serializable {
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
+public final class SeatDto implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 0L;
+    private String id;
+    private Integer rowNumber;
+    private Integer seatNumber;
+    private RoomDto room;
+
 }
