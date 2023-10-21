@@ -32,6 +32,7 @@ public class CinemaController {
 
         List<CinemaDto> allCinemas = cinemaService.findAllCinemas();
 
+
         List<CinemaResponseDTO> responseDTOList = allCinemas.stream()
                 .map(cinemaDto -> CinemaResponseDTO.builder()
                         .name(cinemaDto.getName())
@@ -46,7 +47,6 @@ public class CinemaController {
 
     @GetMapping("/city/{cityName}")
     public ResponseEntity<?> getCinemasByCity(@PathVariable String cityName) {
-
 
         try {
             List<CinemaDto> cinemaByTownName = cinemaService.findCinemasByTownName(cityName);

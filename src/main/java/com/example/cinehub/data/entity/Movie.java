@@ -1,25 +1,29 @@
 package com.example.cinehub.data.entity;
 
 import com.example.cinehub.data.base.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 public class Movie extends BaseEntity {
 
-
+    @Column(nullable = false)
     private String title;
 
     private String description;
 
-    private LocalDateTime startTime;
+    @Column(nullable = false)
+    private Integer duration;
 
-    @ManyToOne
-    @JoinColumn(name = "room_id")
-    private Room room;
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShowTime> showTimes;
+
 }

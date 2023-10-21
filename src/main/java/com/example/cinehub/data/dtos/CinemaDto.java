@@ -1,28 +1,36 @@
 package com.example.cinehub.data.dtos;
 
-import com.example.cinehub.data.entity.Cinema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serial;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 
 /**
- * DTO for {@link Cinema}
+ * DTO for {@link com.example.cinehub.data.entity.Cinema}
  */
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@EqualsAndHashCode
-public final class CinemaDto implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 0L;
+@Getter
+public class CinemaDto implements Serializable {
+
     private UUID id;
+
+    @NotNull(message = "Name can not be null")
+    @NotBlank(message = "Name can not be blank")
     private String name;
+
+    @NotNull(message = "Address can be null")
+    @NotBlank(message = "Address can not be blank")
     private String address;
-    private CityDto city;
+
+    @NotNull(message = "Slug can not be null")
+    @NotBlank(message = "Slug can not be blank")
     private String slug;
 
-
+    @NotNull(message = "City can not be null")
+    private CityDto city;
 }

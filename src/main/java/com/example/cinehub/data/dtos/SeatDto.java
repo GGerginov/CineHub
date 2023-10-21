@@ -1,25 +1,35 @@
 package com.example.cinehub.data.dtos;
 
-import com.example.cinehub.data.entity.Seat;
 import lombok.*;
+import org.hibernate.validator.constraints.Range;
 
-import java.io.Serial;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
- * DTO for {@link Seat}
+ * DTO for {@link com.example.cinehub.data.entity.Seat}
  */
-@Getter
-@NoArgsConstructor
+
 @AllArgsConstructor
-@ToString
-@EqualsAndHashCode
-public final class SeatDto implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 0L;
-    private String id;
+@NoArgsConstructor
+@Builder
+@Getter
+public class SeatDto implements Serializable {
+    private UUID id;
+
+    @NotNull(message = "Row number can not be null")
+    @Positive(message = "Row number can not be nagative")
+    @Range(message = "Rows can not be more than 20", max = 20)
     private Integer rowNumber;
+
+    @NotNull(message = "Seat number can not be null")
+    @Positive(message = "Seat numbe can not be negative")
+    @Range(message = "Seat number can not be more than 100", max = 100)
     private Integer seatNumber;
+
+    @NotNull
     private RoomDto room;
 
 }
