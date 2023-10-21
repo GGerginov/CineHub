@@ -1,29 +1,36 @@
 package com.example.cinehub.data.dtos;
 
-import com.example.cinehub.data.entity.Movie;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serial;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 /**
- * DTO for {@link Movie}
+ * DTO for {@link com.example.cinehub.data.entity.Movie}
  */
-
-@Getter
-@NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@EqualsAndHashCode
-public final class MovieDto implements Serializable {
+@NoArgsConstructor
+@Getter
+public class MovieDto implements Serializable {
 
-    @Serial
-    private static final long serialVersionUID = 0L;
-    private String id;
+    private UUID id;
+
+    @NotNull(message = "Title can not be null")
+    @NotBlank(message = "Title can not be blank")
     private String title;
-    private String description;
-    private LocalDateTime startTime;
-    private RoomDto room;
 
+    private String description;
+
+    @NotNull(message = "Duration can not be null")
+    @Positive(message = "Duration can not be negative")
+    private Integer duration;
+
+    @NotNull
+    private List<ShowTimeDto> showTimes;
 }
