@@ -12,5 +12,5 @@ public interface RoomService {
 
     List<RoomDto> findAllUpcomingBroadcasts();
 
-    RoomDto findRoomWithMoviesInRange(Integer roomNumber, String cinemaSlug, LocalDateTime startTime, LocalDateTime endTime);
+    RoomDto findRoomWithMoviesInRange(Integer roomNumber, String cinemaSlug, LocalDateTime startTime, LocalDateTime endTime) throws ApiException;
 }

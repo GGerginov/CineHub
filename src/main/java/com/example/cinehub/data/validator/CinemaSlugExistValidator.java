@@ -1,23 +1,23 @@
 package com.example.cinehub.data.validator;
 
-import com.example.cinehub.data.anotation.CinemaSlugPresent;
+import com.example.cinehub.data.anotation.CinemaSlugExist;
 import com.example.cinehub.repository.CinemaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
-public class CinemaSlugPresentValidator implements ConstraintValidator<CinemaSlugPresent, String> {
+public class CinemaSlugExistValidator implements ConstraintValidator<CinemaSlugExist, String> {
 
     private final CinemaRepository cinemaRepository;
 
     @Autowired
-    public CinemaSlugPresentValidator(CinemaRepository cinemaRepository) {
+    public CinemaSlugExistValidator(CinemaRepository cinemaRepository) {
         this.cinemaRepository = cinemaRepository;
     }
 
     @Override
-    public void initialize(CinemaSlugPresent constraintAnnotation) {
+    public void initialize(CinemaSlugExist constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 

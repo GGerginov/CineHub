@@ -56,17 +56,18 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public RoomDto findRoomWithMoviesInRange(Integer roomNumber, String cinemaSlug, LocalDateTime startTime, LocalDateTime endTime) {
+    public RoomDto findRoomWithMoviesInRange(Integer roomNumber, String cinemaSlug, LocalDateTime startTime, LocalDateTime endTime) throws ApiException {
 
         Optional<Room> withMoviesInRange = this.roomRepository.findRoomWithMoviesInRange(roomNumber, cinemaSlug,
                 startTime, endTime);
+
 
         if (withMoviesInRange.isPresent()){
 
             return this.modelMapper.map(withMoviesInRange,RoomDto.class);
         }
-
-        // TODO: 21.10.23  
-        return null;
+        else {
+            throw new ApiException(ErrorMessages.ROOM_NOT_FOUND);
+        }
     }
 }

@@ -16,8 +16,9 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +37,7 @@ public class RoomController {
     }
 
     @GetMapping("/{slug}")
-    public ResponseEntity<?> getAllCinemas(@PathVariable @NotNull @NotBlank String slug) {
+    public ResponseEntity<?> getAllRoomsByCinemaSlug(@PathVariable @NotNull @NotBlank String slug) {
 
         try {
             List<RoomDto> roomsByCinemaSlug = this.roomService.findRoomsByCinemaSlug(slug);
@@ -57,7 +58,7 @@ public class RoomController {
     }
 
     @GetMapping("/upcoming-broadcasts")
-    public ResponseEntity<?> listAllUpcomingBroadcasts(){
+    public ResponseEntity<?> listAllUpcomingBroadcasts() {
 
         List<RoomDto> allUpcomingBroadcasts = this.roomService.findAllUpcomingBroadcasts();
 
@@ -87,32 +88,34 @@ public class RoomController {
     public ResponseEntity<?> findAllActualMoviesForARoomInTimeRange(@Validated @RequestBody RoomMoviesRequestDTO roomMoviesRequestDTO,
                                                                     Errors errors) {
 
-        // TODO: 21.10.23 Validation not working
         if (errors.hasErrors()) {
             return new ErrorResponse(errors).getResponse();
         }
 
-        RoomDto withMoviesInRange = this.roomService.findRoomWithMoviesInRange(roomMoviesRequestDTO.getRoomNumber()
-                , roomMoviesRequestDTO.getCinemaSlug(),
-                roomMoviesRequestDTO.getStart_time(),
-                roomMoviesRequestDTO.getEnd_time());
+        try {
+            RoomDto withMoviesInRange = this.roomService.findRoomWithMoviesInRange(roomMoviesRequestDTO.getRoomNumber()
+                    , roomMoviesRequestDTO.getCinemaSlug(),
+                    roomMoviesRequestDTO.getStart_time(),
+                    roomMoviesRequestDTO.getEnd_time());
 
+            // TODO: 21.10.23 Try with model mapper
+            RoomMovieResponseDTO responseDTO = RoomMovieResponseDTO.builder()
+                    .cinemaSlug(withMoviesInRange.getCinema().getSlug())
+                    .roomNumber(withMoviesInRange.getRoomNumber())
+                    .capacity(withMoviesInRange.getCapacity())
+                    .showTimes(withMoviesInRange.getShowTimes().stream()
+                            .map(showTimeDto -> ShowTimeResponseDTO.builder()
+                                    .movieTitle(showTimeDto.getMovie().getTitle())
+                                    .movieDuration(showTimeDto.getMovie().getDuration())
+                                    .startTime(showTimeDto.getStartTime())
+                                    .endTime(showTimeDto.getEndTime())
+                                    .build())
+                            .collect(Collectors.toList()))
+                    .build();
 
-        // TODO: 21.10.23 Try with model mapper
-        RoomMovieResponseDTO responseDTO = RoomMovieResponseDTO.builder()
-                .cinemaSlug(withMoviesInRange.getCinema().getSlug())
-                .roomNumber(withMoviesInRange.getRoomNumber())
-                .capacity(withMoviesInRange.getCapacity())
-                .showTimes(withMoviesInRange.getShowTimes().stream()
-                        .map(showTimeDto -> ShowTimeResponseDTO.builder()
-                                .movieTitle(showTimeDto.getMovie().getTitle())
-                                .movieDuration(showTimeDto.getMovie().getDuration())
-                                .startTime(showTimeDto.getStartTime())
-                                .endTime(showTimeDto.getEndTime())
-                                .build())
-                        .collect(Collectors.toList()))
-                .build();
-
-        return new SuccessResponse<>(responseDTO).getResponse();
+            return new SuccessResponse<>(responseDTO).getResponse();
+        } catch (ApiException e) {
+            return new ErrorResponse(e).getResponse();
+        }
     }
 }

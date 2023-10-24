@@ -4,15 +4,17 @@ package com.example.cinehub.controller;
 import com.example.cinehub.controller.requestDTOs.TicketCheckRequestDto;
 import com.example.cinehub.controller.responseDTOs.TicketResponseDto;
 import com.example.cinehub.data.dtos.TicketDto;
+import com.example.cinehub.exception.jsonMessages.errorResponse.ErrorResponse;
 import com.example.cinehub.exception.jsonMessages.successResponse.SuccessResponse;
 import com.example.cinehub.service.TicketService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -26,7 +28,13 @@ public class TicketController {
     }
 
     @GetMapping("/check")
-    public ResponseEntity<?> getAllTicketByCinemaSlugRoomNumberAndMovieTitle(@Valid @RequestBody TicketCheckRequestDto ticketCheckRequestDto){
+    public ResponseEntity<?> getAllTicketByCinemaSlugRoomNumberAndMovieTitle(@Validated @RequestBody TicketCheckRequestDto ticketCheckRequestDto
+    , Errors errors){
+
+
+        if (errors.hasErrors()) {
+            return new ErrorResponse(errors).getResponse();
+        }
 
         List<TicketDto> tickets = this.ticketService.findAllTicketsByRoomNumberAndSlugAndMovieTitle(ticketCheckRequestDto.getRoomNumber()
                 , ticketCheckRequestDto.getSlug()
