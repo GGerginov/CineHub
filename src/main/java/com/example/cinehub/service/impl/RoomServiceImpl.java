@@ -9,6 +9,7 @@ import com.example.cinehub.service.RoomService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
@@ -30,6 +31,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Cacheable(value = "roomsByCinemaSlug",key = "#cinemaSlug",unless = "#result.isEmpty()")
     public List<RoomDto> findRoomsByCinemaSlug(String cinemaSlug) throws ApiException {
 
         List<Room> roomsByCinemaSlug = this.roomRepository.findAllRoomsByCinemaSlug(cinemaSlug);
@@ -45,6 +47,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Cacheable(value = "upcomingMoviesInRoom", key = "'allUpcomingBroadcasts:' + T(java.time.LocalDateTime).now().getHour()",unless = "#result.isEmpty()")
     public List<RoomDto> findAllUpcomingBroadcasts() {
 
         List<Room> roomList = this.roomRepository.findAllRoomsWithUpcomingBroadcasts();
@@ -56,17 +59,18 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public RoomDto findRoomWithMoviesInRange(Integer roomNumber, String cinemaSlug, LocalDateTime startTime, LocalDateTime endTime) {
+    public RoomDto findRoomWithMoviesInRange(Integer roomNumber, String cinemaSlug, LocalDateTime startTime, LocalDateTime endTime) throws ApiException {
 
         Optional<Room> withMoviesInRange = this.roomRepository.findRoomWithMoviesInRange(roomNumber, cinemaSlug,
                 startTime, endTime);
+
 
         if (withMoviesInRange.isPresent()){
 
             return this.modelMapper.map(withMoviesInRange,RoomDto.class);
         }
-
-        // TODO: 21.10.23  
-        return null;
+        else {
+            throw new ApiException(ErrorMessages.ROOM_NOT_FOUND);
+        }
     }
 }

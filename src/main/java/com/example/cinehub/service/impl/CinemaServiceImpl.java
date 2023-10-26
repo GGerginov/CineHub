@@ -9,6 +9,7 @@ import com.example.cinehub.service.CinemaService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
@@ -28,6 +29,7 @@ public class CinemaServiceImpl implements CinemaService {
     }
 
     @Override
+    @Cacheable(value = "cinema",unless = "#result.isEmpty()")
     public List<CinemaDto> findAllCinemas() {
 
         List<Cinema> cinemas = this.cinemaRepository.findAll();
@@ -38,6 +40,7 @@ public class CinemaServiceImpl implements CinemaService {
     }
 
     @Override
+    @Cacheable(value = "cinemasByTownName",key = "#townName",unless = "#result.isEmpty()")
     public List<CinemaDto> findCinemasByTownName(String townName) throws ApiException {
 
         List<Cinema> cinemaByCityName = cinemaRepository.findByCityNameIgnoreCase(townName);

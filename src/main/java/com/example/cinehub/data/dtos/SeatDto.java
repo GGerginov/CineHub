@@ -2,9 +2,7 @@ package com.example.cinehub.data.dtos;
 
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.UUID;
 
