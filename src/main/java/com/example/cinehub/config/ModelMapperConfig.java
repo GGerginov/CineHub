@@ -1,6 +1,12 @@
 package com.example.cinehub.config;
 
 
+import com.example.cinehub.controller.responseDTOs.*;
+import com.example.cinehub.data.dtos.CinemaDto;
+import com.example.cinehub.data.dtos.RoomDto;
+import com.example.cinehub.data.dtos.TicketDto;
+import org.modelmapper.AbstractConverter;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +26,84 @@ public class ModelMapperConfig {
                 .setFieldMatchingEnabled(true)
                 .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE)
                 .setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.addConverter(getCinemaResponseDtoConverter());
+        modelMapper.addConverter(getRoomResponseDtoConverter());
+        modelMapper.addConverter(getRoomMovieResponseDtoConverter());
+        modelMapper.addConverter(getTicketResponseDtoConverter());
+    }
+
+    private Converter<TicketDto, TicketResponseDto> getTicketResponseDtoConverter() {
+        return new AbstractConverter<>(){
+            @Override
+            protected TicketResponseDto convert(TicketDto ticketDto) {
+                return TicketResponseDto.builder()
+                        .ticketType(ticketDto.getTicketType())
+                        .price(ticketDto.getPrice())
+                        .showTimeStartTime(ticketDto.getShowTime().getStartTime())
+                        .showTimeEndTime(ticketDto.getShowTime().getEndTime())
+                        .showTimeMovieTitle(ticketDto.getShowTime().getMovie().getTitle())
+                        .isReserved(ticketDto.getIsReserved())
+                        .seatNumber(ticketDto.getSeat().getSeatNumber())
+                        .seatRow(ticketDto.getSeat().getRowNumber())
+                        .roomNumber(ticketDto.getSeat().getRoom().getRoomNumber())
+                        .cinemaName(ticketDto.getSeat().getRoom().getCinema().getName())
+                        .cinemaAddress(ticketDto.getSeat().getRoom().getCinema().getAddress())
+                        .cinemaSlug(ticketDto.getSeat().getRoom().getCinema().getSlug())
+                        .build();
+            }
+        };
+    }
+
+    private Converter<RoomDto, RoomMovieResponseDTO> getRoomMovieResponseDtoConverter() {
+        return new AbstractConverter<>(){
+            @Override
+            protected RoomMovieResponseDTO convert(RoomDto roomDto) {
+                return RoomMovieResponseDTO
+                        .builder()
+                        .roomNumber(roomDto.getRoomNumber())
+                        .capacity(roomDto.getCapacity())
+                        .cinemaSlug(roomDto.getCinema().getSlug())
+                        .showTimes(roomDto.getShowTimes()
+                                .stream()
+                                .map(showTime -> ShowTimeResponseDTO.builder()
+                                        .movieTitle(showTime.getMovie().getTitle())
+                                        .movieDuration(showTime.getMovie().getDuration())
+                                        .startTime(showTime.getStartTime())
+                                        .endTime(showTime.getEndTime())
+                                        .build())
+                                .toList()
+                        ).build();
+            }
+        };
+    }
+    private Converter<CinemaDto, CinemaResponseDTO> getCinemaResponseDtoConverter() {
+
+        return new AbstractConverter<>() {
+
+            @Override
+            protected CinemaResponseDTO convert(CinemaDto cinemaDto) {
+                return CinemaResponseDTO.builder()
+                        .name(cinemaDto.getName())
+                        .address(cinemaDto.getAddress())
+                        .slug(cinemaDto.getSlug())
+                        .cityName(cinemaDto.getCity().getName())
+                        .build();
+            }
+        };
+    }
+
+    private Converter<RoomDto, RoomResponseDTO> getRoomResponseDtoConverter() {
+
+        return new AbstractConverter<>() {
+            @Override
+            protected RoomResponseDTO convert(RoomDto roomDto) {
+                return RoomResponseDTO.builder()
+                        .roomNumber(roomDto.getRoomNumber())
+                        .capacity(roomDto.getCapacity())
+                        .cinemaSlug(roomDto.getCinema().getSlug())
+                        .build();
+            }
+        };
     }
 
     @Bean

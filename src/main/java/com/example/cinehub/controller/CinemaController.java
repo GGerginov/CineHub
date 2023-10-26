@@ -6,6 +6,8 @@ import com.example.cinehub.exception.ApiException;
 import com.example.cinehub.exception.jsonMessages.errorResponse.ErrorResponse;
 import com.example.cinehub.exception.jsonMessages.successResponse.SuccessResponse;
 import com.example.cinehub.service.CinemaService;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +15,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.lang.reflect.Type;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/cinemas")
@@ -22,9 +24,15 @@ public class CinemaController {
 
     private final CinemaService cinemaService;
 
+    private final ModelMapper modelMapper;
+
+    private final static Type LIST_OF_CINEMA_RESPONSE_DTO_TYPE = new TypeToken<List<CinemaResponseDTO>>() {
+    }.getType();
+
     @Autowired
-    public CinemaController(CinemaService cinemaService) {
+    public CinemaController(CinemaService cinemaService, ModelMapper modelMapper) {
         this.cinemaService = cinemaService;
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping
@@ -32,14 +40,7 @@ public class CinemaController {
 
         List<CinemaDto> allCinemas = cinemaService.findAllCinemas();
 
-        List<CinemaResponseDTO> responseDTOList = allCinemas.stream()
-                .map(cinemaDto -> CinemaResponseDTO.builder()
-                        .name(cinemaDto.getName())
-                        .address(cinemaDto.getAddress())
-                        .slug(cinemaDto.getSlug())
-                        .cityName(cinemaDto.getCity().getName())
-                        .build())
-                .collect(Collectors.toList());
+        List<CinemaResponseDTO> responseDTOList = this.modelMapper.map(allCinemas,LIST_OF_CINEMA_RESPONSE_DTO_TYPE);
 
         return new SuccessResponse<>(responseDTOList).getResponse();
     }
@@ -50,17 +51,10 @@ public class CinemaController {
         try {
             List<CinemaDto> cinemaByTownName = cinemaService.findCinemasByTownName(cityName);
 
-            List<CinemaResponseDTO> responseDTOS = cinemaByTownName.stream()
-                    .map(cinemaDto -> CinemaResponseDTO
-                            .builder()
-                            .name(cinemaDto.getName())
-                            .cityName(cinemaDto.getCity().getName())
-                            .address(cinemaDto.getAddress())
-                            .slug(cinemaDto.getSlug())
-                            .build())
-                    .toList();
+            List<CinemaResponseDTO> responseDTOList = this.modelMapper
+                    .map(cinemaByTownName,LIST_OF_CINEMA_RESPONSE_DTO_TYPE);
 
-            return new SuccessResponse<>(responseDTOS).getResponse();
+            return new SuccessResponse<>(responseDTOList).getResponse();
         } catch (ApiException e) {
             return new ErrorResponse(e).getResponse();
         }
