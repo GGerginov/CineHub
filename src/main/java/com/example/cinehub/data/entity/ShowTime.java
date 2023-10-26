@@ -30,7 +30,6 @@ public class ShowTime extends BaseEntity {
     @JoinColumn(name = "room_id")
     private Room room;
 
-
     @OneToMany(mappedBy = "showTime", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ticket> tickets = new ArrayList<>();
 

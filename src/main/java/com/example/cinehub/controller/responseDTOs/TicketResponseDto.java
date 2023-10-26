@@ -1,6 +1,7 @@
 package com.example.cinehub.controller.responseDTOs;
 
 import com.example.cinehub.data.entity.TicketCategory;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 
@@ -19,9 +20,11 @@ public class TicketResponseDto {
     Double price;
 
     @JsonProperty("show_time_start")
+    @JsonFormat(pattern="yyyy-MM-dd")
     LocalDateTime showTimeStartTime;
 
     @JsonProperty("show_time_end")
+    @JsonFormat(pattern="yyyy-MM-dd")
     LocalDateTime showTimeEndTime;
 
     @JsonProperty("movie_title")

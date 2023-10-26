@@ -7,6 +7,7 @@ import com.example.cinehub.service.TicketService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
@@ -28,6 +29,7 @@ public class TicketServiceImpl implements TicketService {
 
 
     @Override
+    @Cacheable(cacheNames = "tickets", key = "#roomNumber + '-' + #slug + '-' + #title", unless = "#result.isEmpty()")
     public List<TicketDto> findAllTicketsByRoomNumberAndSlugAndMovieTitle(Integer roomNumber, String slug, String title) {
 
         List<Ticket> tickets = this.ticketRepository

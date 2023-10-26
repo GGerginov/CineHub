@@ -2,9 +2,9 @@ package com.example.cinehub.controller;
 
 import com.example.cinehub.controller.responseDTOs.CinemaResponseDTO;
 import com.example.cinehub.data.dtos.CinemaDto;
+import com.example.cinehub.exception.ApiException;
 import com.example.cinehub.exception.jsonMessages.errorResponse.ErrorResponse;
 import com.example.cinehub.exception.jsonMessages.successResponse.SuccessResponse;
-import com.example.cinehub.exception.ApiException;
 import com.example.cinehub.service.CinemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,6 @@ public class CinemaController {
     public ResponseEntity<?> getAllCinemas() {
 
         List<CinemaDto> allCinemas = cinemaService.findAllCinemas();
-
 
         List<CinemaResponseDTO> responseDTOList = allCinemas.stream()
                 .map(cinemaDto -> CinemaResponseDTO.builder()

@@ -1,5 +1,6 @@
 package com.example.cinehub.data.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,5 +31,6 @@ public class MovieDto implements Serializable {
     private Integer duration;
 
     @NotNull
+    @JsonIgnore
     private List<ShowTimeDto> showTimes;
 }
