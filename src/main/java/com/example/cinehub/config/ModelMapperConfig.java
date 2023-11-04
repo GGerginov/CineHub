@@ -37,6 +37,7 @@ public class ModelMapperConfig {
             @Override
             protected TicketResponseDto convert(TicketDto ticketDto) {
                 return TicketResponseDto.builder()
+                        .uuid(ticketDto.getId())
                         .ticketType(ticketDto.getTicketType())
                         .price(ticketDto.getPrice())
                         .showTimeStartTime(ticketDto.getShowTime().getStartTime())

@@ -28,6 +28,7 @@ public class ErrorResponse {
 
     public ErrorResponse(ApiException error) {
         this(error.getErrorMessage());
+        setHttpStatus(error.getErrorMessage().getErrCode());
     }
 
     public ErrorResponse(Errors error) {
@@ -35,7 +36,7 @@ public class ErrorResponse {
     }
 
     public ErrorResponse(List<ObjectError> errors) {
-        this(errors, 400);
+        this(errors, HttpStatus.UNPROCESSABLE_ENTITY.value());
     }
 
     public ErrorResponse(List<ObjectError> errors, int defaultCode) {

@@ -76,10 +76,10 @@ public class RoomController {
         }
 
         try {
-            RoomDto withMoviesInRange = this.roomService.findRoomWithMoviesInRange(roomMoviesRequestDTO.getRoomNumber()
-                    , roomMoviesRequestDTO.getCinemaSlug(),
-                    roomMoviesRequestDTO.getStart_time(),
-                    roomMoviesRequestDTO.getEnd_time());
+            RoomDto withMoviesInRange = this.roomService.findRoomWithMoviesInRange(roomMoviesRequestDTO.roomNumber()
+                    , roomMoviesRequestDTO.cinemaSlug(),
+                    roomMoviesRequestDTO.start_time(),
+                    roomMoviesRequestDTO.end_time());
 
             RoomMovieResponseDTO responseDTO = this.modelMapper.map(withMoviesInRange, RoomMovieResponseDTO.class);
 

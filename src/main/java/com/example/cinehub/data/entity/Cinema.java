@@ -19,7 +19,7 @@ public class Cinema extends BaseEntity {
     @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private String slug;
 
     @ManyToOne

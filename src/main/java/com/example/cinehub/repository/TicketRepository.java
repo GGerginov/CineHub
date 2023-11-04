@@ -18,5 +18,4 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
     List<Ticket> findAllTicketsByRoomNumberAndSlugAndMovieTitle(@NonNull Integer roomNumber,
                                                                 @NonNull String slug,
                                                                 @NonNull String title);
-
 }

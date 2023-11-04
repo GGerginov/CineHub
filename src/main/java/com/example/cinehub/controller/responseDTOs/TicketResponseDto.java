@@ -4,15 +4,20 @@ import com.example.cinehub.data.entity.TicketCategory;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
+import lombok.Value;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * DTO for {@link com.example.cinehub.data.entity.Ticket}
  */
 @Builder
+@Value
 public class TicketResponseDto {
 
+    @JsonProperty("id")
+    UUID uuid;
     @JsonProperty("ticket_type")
     TicketCategory ticketType;
 
