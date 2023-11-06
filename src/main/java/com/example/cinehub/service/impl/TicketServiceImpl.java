@@ -12,10 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -48,16 +49,35 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @CacheEvict(cacheNames = "tickets", allEntries = true)
-    public synchronized TicketDto bookTicketById(String id) throws ApiException {
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public TicketDto bookTicketById(String id) throws ApiException {
 
-        Optional<Ticket> optional = this.ticketRepository.findById(UUID.fromString(id));
+        UUID uuid = validateUUID(id);
 
-        Ticket ticket = optional.get();
+        Ticket ticket = findTicketById(uuid);
 
-        if (ticket.getIsReserved()) throw new ApiException(ErrorMessages.TICKET_IS_ALREADY_BOOKED);
+        return modelMapper.map(bookTicket(ticket), TicketDto.class);
+    }
 
+    private UUID validateUUID(String id) throws ApiException {
+        try {
+            return UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            throw new ApiException(ErrorMessages.TICKET_ID_NOT_VALID);
+        }
+    }
+
+    private Ticket findTicketById(UUID id) throws ApiException {
+        return ticketRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorMessages.TICKET_NOT_FOUND));
+    }
+
+    private Ticket bookTicket(Ticket ticket) throws ApiException {
+        if (ticket.getIsReserved()) {
+            throw new ApiException(ErrorMessages.TICKET_IS_ALREADY_BOOKED);
+        }
         ticket.setIsReserved(true);
 
-        return modelMapper.map(this.ticketRepository.saveAndFlush(ticket), TicketDto.class);
+        return ticketRepository.saveAndFlush(ticket);
     }
 }

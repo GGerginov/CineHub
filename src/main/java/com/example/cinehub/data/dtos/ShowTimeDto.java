@@ -3,13 +3,13 @@ package com.example.cinehub.data.dtos;
 import com.example.cinehub.data.entity.ShowTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.*;import java.io.Serializable;
+import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -29,7 +29,4 @@ public class ShowTimeDto implements Serializable {
     @NotNull
     @JsonIgnore
     private MovieDto movie;
-    @NotNull
-    @JsonIgnore
-    private List<TicketDto> tickets;
 }
