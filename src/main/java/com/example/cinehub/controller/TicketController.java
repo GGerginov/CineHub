@@ -4,6 +4,7 @@ package com.example.cinehub.controller;
 import com.example.cinehub.controller.requestDTOs.TicketCheckRequestDto;
 import com.example.cinehub.controller.responseDTOs.TicketResponseDto;
 import com.example.cinehub.data.dtos.TicketDto;
+import com.example.cinehub.exception.ApiException;
 import com.example.cinehub.exception.jsonMessages.errorResponse.ErrorResponse;
 import com.example.cinehub.exception.jsonMessages.successResponse.SuccessResponse;
 import com.example.cinehub.service.TicketService;
@@ -13,14 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Type;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/ticket")
 public class TicketController {
@@ -41,19 +40,31 @@ public class TicketController {
 
     @GetMapping("/check")
     public ResponseEntity<?> getAllTicketByCinemaSlugRoomNumberAndMovieTitle(@Validated @RequestBody TicketCheckRequestDto ticketCheckRequestDto
-            , Errors errors) {
-
+            ,Errors errors) {
 
         if (errors.hasErrors()) {
             return new ErrorResponse(errors).getResponse();
         }
 
-        List<TicketDto> tickets = this.ticketService.findAllTicketsByRoomNumberAndSlugAndMovieTitle(ticketCheckRequestDto.getRoomNumber()
-                , ticketCheckRequestDto.getSlug()
-                , ticketCheckRequestDto.getMovieTitle());
+        List<TicketDto> tickets = this.ticketService.findAllTicketsByRoomNumberAndSlugAndMovieTitle(ticketCheckRequestDto.roomNumber()
+                , ticketCheckRequestDto.slug()
+                , ticketCheckRequestDto.movieTitle());
 
         List<TicketResponseDto> ticketsResponse = this.modelMapper.map(tickets, LIST_OF_TICKET_RESPONSE_DTO_TYPE);
 
         return new SuccessResponse<>(ticketsResponse).getResponse();
+    }
+
+    @PutMapping("/book/{id}")
+    public ResponseEntity<?> bookTicketById(@PathVariable(name = "id") String id){
+
+        try {
+            TicketDto ticketDto = ticketService.bookTicketById(id);
+
+            return new SuccessResponse<>(this.modelMapper.map(ticketDto, TicketResponseDto.class)).getResponse();
+
+        } catch (ApiException e) {
+            return new ErrorResponse(e).getResponse();
+        }
     }
 }

@@ -24,6 +24,9 @@ public class RoomServiceImpl implements RoomService {
 
     private final ModelMapper modelMapper;
 
+    private final static Type LIST_OF_ROOM_DTO_TYPE =new TypeToken<List<RoomDto>>() {
+    }.getType();
+
     @Autowired
     public RoomServiceImpl(RoomRepository roomRepository, ModelMapper modelMapper) {
         this.roomRepository = roomRepository;
@@ -40,10 +43,7 @@ public class RoomServiceImpl implements RoomService {
             throw new ApiException(ErrorMessages.SLUG_NOT_FOUND);
         }
 
-        Type listOfCinemaDtoType = new TypeToken<List<RoomDto>>() {
-        }.getType();
-
-        return this.modelMapper.map(roomsByCinemaSlug,listOfCinemaDtoType);
+        return this.modelMapper.map(roomsByCinemaSlug,LIST_OF_ROOM_DTO_TYPE);
     }
 
     @Override
@@ -52,10 +52,7 @@ public class RoomServiceImpl implements RoomService {
 
         List<Room> roomList = this.roomRepository.findAllRoomsWithUpcomingBroadcasts();
 
-        Type listOfCinemaDtoType = new TypeToken<List<RoomDto>>() {
-        }.getType();
-
-        return this.modelMapper.map(roomList,listOfCinemaDtoType);
+        return this.modelMapper.map(roomList,LIST_OF_ROOM_DTO_TYPE);
     }
 
     @Override
@@ -63,7 +60,6 @@ public class RoomServiceImpl implements RoomService {
 
         Optional<Room> withMoviesInRange = this.roomRepository.findRoomWithMoviesInRange(roomNumber, cinemaSlug,
                 startTime, endTime);
-
 
         if (withMoviesInRange.isPresent()){
 

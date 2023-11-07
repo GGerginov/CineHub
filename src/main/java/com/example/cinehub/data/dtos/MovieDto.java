@@ -1,13 +1,13 @@
 package com.example.cinehub.data.dtos;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.*;
 import java.io.Serializable;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -30,7 +30,4 @@ public class MovieDto implements Serializable {
     @Positive(message = "Duration can not be negative")
     private Integer duration;
 
-    @NotNull
-    @JsonIgnore
-    private List<ShowTimeDto> showTimes;
 }

@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class City extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private String name;
 
 }

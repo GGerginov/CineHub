@@ -2,19 +2,21 @@ package com.example.cinehub.controller.responseDTOs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
+import lombok.Value;
 
 @Builder
+@Value
 public class CinemaResponseDTO {
 
     @JsonProperty("cinema_name")
-    private String name;
+    String name;
 
     @JsonProperty("cinema_address")
-    private String address;
+    String address;
 
     @JsonProperty("cinema_slug")
-    private String slug;
+    String slug;
 
     @JsonProperty("city_name")
-    private String cityName;
+    String cityName;
 }
