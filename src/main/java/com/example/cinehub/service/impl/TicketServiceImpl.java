@@ -54,7 +54,8 @@ public class TicketServiceImpl implements TicketService {
 
         UUID uuid = validateUUID(id);
 
-        Ticket ticket = findTicketById(uuid);
+        Ticket ticket = ticketRepository.findById(uuid)
+                .orElseThrow(() -> new ApiException(ErrorMessages.TICKET_NOT_FOUND));
 
         return modelMapper.map(bookTicket(ticket), TicketDto.class);
     }
@@ -65,11 +66,6 @@ public class TicketServiceImpl implements TicketService {
         } catch (IllegalArgumentException e) {
             throw new ApiException(ErrorMessages.TICKET_ID_NOT_VALID);
         }
-    }
-
-    private Ticket findTicketById(UUID id) throws ApiException {
-        return ticketRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorMessages.TICKET_NOT_FOUND));
     }
 
     private Ticket bookTicket(Ticket ticket) throws ApiException {

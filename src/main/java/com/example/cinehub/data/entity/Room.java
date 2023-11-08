@@ -2,14 +2,16 @@ package com.example.cinehub.data.entity;
 
 import com.example.cinehub.data.base.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @Getter
 @Setter
-@Entity
 public class Room extends BaseEntity {
 
     @Column(nullable = false)
@@ -22,7 +24,8 @@ public class Room extends BaseEntity {
     @JoinColumn(name = "cinema_id",nullable = false)
     private Cinema cinema;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    @ToString.Exclude
     private List<ShowTime> showTimes ;
 
 }
