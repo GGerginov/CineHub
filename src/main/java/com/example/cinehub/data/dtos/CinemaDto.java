@@ -22,14 +22,11 @@ public class CinemaDto implements Serializable {
     @NotBlank(message = "Name can not be blank")
     private String name;
 
-    @NotNull(message = "Address can be null")
-    @NotBlank(message = "Address can not be blank")
-    private String address;
-
     @NotNull(message = "Slug can not be null")
     @NotBlank(message = "Slug can not be blank")
     private String slug;
 
-    @NotNull(message = "City can not be null")
-    private CityDto city;
+    @NotNull(message = "Address can not be null")
+    private AddressDto address;
+
 }

@@ -1,16 +1,17 @@
-INSERT INTO city (name) VALUES
-                            ('Sofia'),
-                            ('Plovdiv'),
-                            ('Varna'),
-                            ('Aprilci');
+INSERT INTO address (city_name, street) VALUES
+                            ('Sofia','Vitosha Boulevard 1'),
+                            ('Sofia','Okolovrasten pat'),
+                            ('Plovdiv','Knyaz Alexander I'),
+                            ('Varna','Boulevard Knyaz Boris I'),
+                            ('Aprilci','Vasil Levski');
 
 
-INSERT INTO cinema (address, name, slug, city_id) VALUES
-                                                      ('Address 1, Sofia', 'Sofia Cinema 1', 'sofia-cinema-1', (SELECT id FROM city WHERE name = 'Sofia')),
-                                                      ('Address 2, Sofia', 'Sofia Cinema 2', 'sofia-cinema-2', (SELECT id FROM city WHERE name = 'Sofia')),
-                                                      ('Address 3, Plovdiv', 'Plovdiv Cinema 1', 'plovdiv-cinema-1', (SELECT id FROM city WHERE name = 'Plovdiv')),
-                                                      ('Address 4, Varna', 'Varna Cinema 1', 'varna-cinema-1', (SELECT id FROM city WHERE name = 'Varna')),
-                                                      ('Address 5, Aprilci', 'Aprilci Cinema 1', 'aprilci-cinema-1', (SELECT id FROM city WHERE name = 'Aprilci'));
+INSERT INTO cinema (name, slug, address_id) VALUES
+                                                      ('Sofia Cinema 1', 'sofia-cinema-1', (SELECT id FROM address WHERE city_name = 'Sofia' and street = 'Okolovrasten pat')),
+                                                      ('Sofia Cinema 2', 'sofia-cinema-2', (SELECT id FROM address WHERE city_name = 'Sofia' and street = 'Vitosha Boulevard 1')),
+                                                      ('Plovdiv Cinema 1', 'plovdiv-cinema-1', (SELECT id FROM address WHERE city_name = 'Plovdiv' and street = 'Knyaz Alexander I')),
+                                                      ('Varna Cinema 1', 'varna-cinema-1', (SELECT id FROM address WHERE city_name = 'Varna' and street = 'Boulevard Knyaz Boris I')),
+                                                      ('Aprilci Cinema 1', 'aprilci-cinema-1', (SELECT id FROM address WHERE city_name = 'Aprilci' and street = 'Vasil Levski'));
 
 
 

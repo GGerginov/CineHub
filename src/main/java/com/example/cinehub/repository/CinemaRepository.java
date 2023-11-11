@@ -11,7 +11,7 @@ public interface CinemaRepository extends JpaRepository<Cinema,String> {
     @Query("select (count(c) > 0) from Cinema c where upper(c.slug) = upper(?1)")
     boolean cinemaSlugExits(@NonNull String slug);
 
-    @Query("select c from Cinema c where upper(c.city.name) = upper(?1)")
+    @Query("select c from Cinema c where upper(c.address.cityName) = upper(?1)")
     List<Cinema> findByCityNameIgnoreCase(@NonNull String name);
 
 }

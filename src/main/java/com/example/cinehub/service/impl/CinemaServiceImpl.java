@@ -22,6 +22,9 @@ public class CinemaServiceImpl implements CinemaService {
 
     private final ModelMapper modelMapper;
 
+    private final Type listOfCinemaDtoType = new TypeToken<List<CinemaDto>>() {
+    }.getType();
+
     @Autowired
     public CinemaServiceImpl(CinemaRepository cinemaRepository, ModelMapper modelMapper) {
         this.cinemaRepository = cinemaRepository;
@@ -29,30 +32,25 @@ public class CinemaServiceImpl implements CinemaService {
     }
 
     @Override
-    @Cacheable(value = "cinema",unless = "#result.isEmpty()")
+    @Cacheable(value = "cinema", unless = "#result.isEmpty()")
     public List<CinemaDto> findAllCinemas() {
 
         List<Cinema> cinemas = this.cinemaRepository.findAll();
-        Type listOfCinemaDtoType = new TypeToken<List<CinemaDto>>() {
-        }.getType();
 
-        return this.modelMapper.map(cinemas,listOfCinemaDtoType);
+        return this.modelMapper.map(cinemas, this.listOfCinemaDtoType);
     }
 
     @Override
-    @Cacheable(value = "cinemasByTownName",key = "#townName",unless = "#result.isEmpty()")
+    @Cacheable(value = "cinemasByTownName", key = "#townName", unless = "#result.isEmpty()")
     public List<CinemaDto> findCinemasByTownName(String townName) throws ApiException {
 
         List<Cinema> cinemaByCityName = cinemaRepository.findByCityNameIgnoreCase(townName);
 
-        if (cinemaByCityName.isEmpty()){
+        if (cinemaByCityName.isEmpty()) {
             throw new ApiException(ErrorMessages.CINEMA_NOT_FOUND);
         }
 
-        Type listOfCinemaDtoType = new TypeToken<List<CinemaDto>>() {
-        }.getType();
-
-        return this.modelMapper.map(cinemaByCityName,listOfCinemaDtoType);
+        return this.modelMapper.map(cinemaByCityName, this.listOfCinemaDtoType);
     }
 
 

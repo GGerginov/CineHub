@@ -1,30 +1,27 @@
 package com.example.cinehub.data.entity;
 
 import com.example.cinehub.data.base.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import lombok.*;
 
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @Getter
 @Setter
-@Entity
 public class Cinema extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = false,length = 50)
     private String name;
 
-    @Column(nullable = false)
-    private String address;
-
+    @Pattern(regexp = "^[a-zA-Z]+(-[a-zA-Z]+)+-\\d+$")
     @Column(nullable = false,unique = true)
     private String slug;
 
-    @ManyToOne
-    @JoinColumn(name = "city_id",nullable = false)
-    private City city;
-
+    @OneToOne
+    @JoinColumn(name = "address_id",nullable = false)
+    private Address address;
 }
 

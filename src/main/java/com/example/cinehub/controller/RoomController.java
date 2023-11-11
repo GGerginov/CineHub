@@ -8,8 +8,6 @@ import com.example.cinehub.exception.ApiException;
 import com.example.cinehub.exception.jsonMessages.errorResponse.ErrorResponse;
 import com.example.cinehub.exception.jsonMessages.successResponse.SuccessResponse;
 import com.example.cinehub.service.RoomService;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +39,7 @@ public class RoomController {
     }
 
     @GetMapping("/{slug}")
-    public ResponseEntity<?> getAllRoomsByCinemaSlug(@PathVariable @NotNull @NotBlank String slug) {
+    public ResponseEntity<?> getAllRoomsByCinemaSlug(@PathVariable String slug) {
 
         try {
             List<RoomDto> roomsByCinemaSlug = this.roomService.findRoomsByCinemaSlug(slug);

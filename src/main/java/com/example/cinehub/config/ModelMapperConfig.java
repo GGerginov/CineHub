@@ -48,7 +48,8 @@ public class ModelMapperConfig {
                         .seatRow(ticketDto.getSeat().getRowNumber())
                         .roomNumber(ticketDto.getSeat().getRoom().getRoomNumber())
                         .cinemaName(ticketDto.getSeat().getRoom().getCinema().getName())
-                        .cinemaAddress(ticketDto.getSeat().getRoom().getCinema().getAddress())
+                        .cinemaCity(ticketDto.getSeat().getRoom().getCinema().getAddress().getCityName())
+                        .cinemaStreet(ticketDto.getSeat().getRoom().getCinema().getAddress().getStreet())
                         .cinemaSlug(ticketDto.getSeat().getRoom().getCinema().getSlug())
                         .build();
             }
@@ -85,9 +86,9 @@ public class ModelMapperConfig {
             protected CinemaResponseDTO convert(CinemaDto cinemaDto) {
                 return CinemaResponseDTO.builder()
                         .name(cinemaDto.getName())
-                        .address(cinemaDto.getAddress())
+                        .cityName(cinemaDto.getAddress().getCityName())
                         .slug(cinemaDto.getSlug())
-                        .cityName(cinemaDto.getCity().getName())
+                        .streetName(cinemaDto.getAddress().getStreet())
                         .build();
             }
         };

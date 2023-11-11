@@ -1,29 +1,25 @@
-CREATE TABLE city
+create table address
 (
-    id   UUID DEFAULT gen_random_uuid() NOT NULL,
-    name VARCHAR(255)                   NOT NULL,
-    CONSTRAINT pk_city PRIMARY KEY (id)
+    id        uuid default gen_random_uuid() not null
+        primary key,
+    city_name varchar(255)                   not null,
+    street    varchar(100)                   not null
 );
 
-ALTER TABLE city
-    ADD CONSTRAINT uc_city_name UNIQUE (name);
-
-CREATE TABLE cinema
+create table cinema
 (
-    id      UUID DEFAULT gen_random_uuid() NOT NULL,
-    name    VARCHAR(255)                   NOT NULL,
-    address VARCHAR(255)                   NOT NULL,
-    slug    VARCHAR(255)                   NOT NULL,
-    city_id UUID   NOT NULL,
-    CONSTRAINT pk_cinema PRIMARY KEY (id)
+    id         uuid default gen_random_uuid() not null
+        primary key,
+    name       varchar(50)                    not null,
+    slug       varchar(255)                   not null
+        constraint uk_501kcmrdt92rxxmh9844qfv6d
+            unique,
+    address_id uuid  not null
+        constraint uk_pf4v54uupbfxj9ef5lvkndkuc
+            unique
+        constraint fkaqp1e3cmq6hcmk0q163xrd8ss
+            references address
 );
-ALTER TABLE cinema
-    ADD CONSTRAINT uc_cinema_slug UNIQUE (slug);
-
-
-ALTER TABLE cinema
-    ADD CONSTRAINT FK_CINEMA_ON_CITY FOREIGN KEY (city_id) REFERENCES city (id);
-
 
 CREATE TABLE movie
 (

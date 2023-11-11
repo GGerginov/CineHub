@@ -50,8 +50,11 @@ public class TicketResponseDto {
     @JsonProperty("cinema_name")
     String cinemaName;
 
-    @JsonProperty("cinema_address")
-    String cinemaAddress;
+    @JsonProperty("cinema_city")
+    String cinemaCity;
+
+    @JsonProperty("cinema_street")
+    String cinemaStreet;
 
     @JsonProperty("cinema_slug")
     String cinemaSlug;

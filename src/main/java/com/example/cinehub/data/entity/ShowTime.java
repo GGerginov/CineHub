@@ -2,16 +2,17 @@ package com.example.cinehub.data.entity;
 
 import com.example.cinehub.data.base.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @Getter
 @Setter
-@Entity
 @Table(name = "show_time",
         uniqueConstraints = @UniqueConstraint(columnNames = {"room_id", "start_time"}))
 public class ShowTime extends BaseEntity {
@@ -31,6 +32,7 @@ public class ShowTime extends BaseEntity {
     private Room room;
 
     @OneToMany(mappedBy = "showTime", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Ticket> tickets = new ArrayList<>();
 
 }

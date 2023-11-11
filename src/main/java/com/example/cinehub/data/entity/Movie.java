@@ -5,12 +5,14 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @Getter
 @Setter
 public class Movie extends BaseEntity {
@@ -24,6 +26,7 @@ public class Movie extends BaseEntity {
     private Integer duration;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<ShowTime> showTimes;
 
 }
