@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -26,9 +26,10 @@ public class TicketServiceImpl implements TicketService {
 
     private final ModelMapper modelMapper;
 
-
     @Autowired
-    public TicketServiceImpl(TicketRepository ticketRepository, ModelMapper modelMapper) {
+    public TicketServiceImpl(TicketRepository ticketRepository,
+                             ModelMapper modelMapper){
+
         this.ticketRepository = ticketRepository;
         this.modelMapper = modelMapper;
     }
@@ -49,15 +50,22 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @CacheEvict(cacheNames = "tickets", allEntries = true)
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public TicketDto bookTicketById(String id) throws ApiException {
+    public Mono<TicketDto> bookTicketById(String id) {
 
-        UUID uuid = validateUUID(id);
+        return Mono.fromCallable(() -> {
+                    UUID uuid = validateUUID(id);
 
-        Ticket ticket = ticketRepository.findById(uuid)
-                .orElseThrow(() -> new ApiException(ErrorMessages.TICKET_NOT_FOUND));
+                    Ticket ticket = this.ticketRepository.findByIdForUpdate(uuid)
+                            .orElseThrow(() -> new ApiException(ErrorMessages.TICKET_NOT_FOUND));
 
-        return modelMapper.map(bookTicket(ticket), TicketDto.class);
+                    if (ticket.getIsReserved()) {
+                        throw new ApiException(ErrorMessages.TICKET_IS_ALREADY_BOOKED);
+                    }
+
+                    ticket.setIsReserved(true);
+                    return this.modelMapper.map(this.ticketRepository.save(ticket), TicketDto.class);
+                })
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     private UUID validateUUID(String id) throws ApiException {
@@ -68,12 +76,4 @@ public class TicketServiceImpl implements TicketService {
         }
     }
 
-    private Ticket bookTicket(Ticket ticket) throws ApiException {
-        if (ticket.getIsReserved()) {
-            throw new ApiException(ErrorMessages.TICKET_IS_ALREADY_BOOKED);
-        }
-        ticket.setIsReserved(true);
-
-        return ticketRepository.saveAndFlush(ticket);
-    }
 }

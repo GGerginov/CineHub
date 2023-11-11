@@ -1,5 +1,6 @@
 package com.example.cinehub.config;
 
+import com.example.cinehub.exception.ApiException;
 import com.example.cinehub.exception.jsonMessages.ErrorMessages;
 import com.example.cinehub.exception.jsonMessages.errorResponse.ErrorResponse;
 import com.example.cinehub.exception.jsonMessages.errorResponse.ErrorResponseDTO;
@@ -22,6 +23,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?> handleHttpMessageNotReadableException(Exception e) {
         return new ErrorResponse(ErrorMessages.INVALID_JSON_STRUCTURE).getResponse();
+    }
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<?> handleApiException(ApiException e){
+        return new ErrorResponse(e).getResponse();
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

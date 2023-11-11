@@ -1,7 +1,7 @@
 package com.example.cinehub.service;
 
 import com.example.cinehub.data.dtos.TicketDto;
-import com.example.cinehub.exception.ApiException;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -9,5 +9,5 @@ import java.util.List;
 public interface TicketService {
     List<TicketDto> findAllTicketsByRoomNumberAndSlugAndMovieTitle(Integer roomNumber, String slug, String title);
 
-    TicketDto bookTicketById(String id) throws ApiException;
+    Mono<TicketDto> bookTicketById(String id);
 }

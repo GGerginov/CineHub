@@ -4,7 +4,6 @@ package com.example.cinehub.controller;
 import com.example.cinehub.controller.requestDTOs.TicketCheckRequestDto;
 import com.example.cinehub.controller.responseDTOs.TicketResponseDto;
 import com.example.cinehub.data.dtos.TicketDto;
-import com.example.cinehub.exception.ApiException;
 import com.example.cinehub.exception.jsonMessages.errorResponse.ErrorResponse;
 import com.example.cinehub.exception.jsonMessages.successResponse.SuccessResponse;
 import com.example.cinehub.service.TicketService;
@@ -15,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -40,7 +41,7 @@ public class TicketController {
 
     @GetMapping("/check")
     public ResponseEntity<?> getAllTicketByCinemaSlugRoomNumberAndMovieTitle(@Validated @RequestBody TicketCheckRequestDto ticketCheckRequestDto
-            ,Errors errors) {
+            , Errors errors) {
 
         if (errors.hasErrors()) {
             return new ErrorResponse(errors).getResponse();
@@ -56,15 +57,13 @@ public class TicketController {
     }
 
     @PutMapping("/book/{id}")
-    public ResponseEntity<?> bookTicketById(@PathVariable(name = "id") String id){
+    public Mono<ResponseEntity<?>> bookTicketById(@PathVariable(name = "id") String id) {
 
-        try {
-            TicketDto ticketDto = ticketService.bookTicketById(id);
-
-            return new SuccessResponse<>(this.modelMapper.map(ticketDto, TicketResponseDto.class)).getResponse();
-
-        } catch (ApiException e) {
-            return new ErrorResponse(e).getResponse();
-        }
+        return ticketService.bookTicketById(id)
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(ticketDto -> {
+                    TicketResponseDto ticketResponseDto = modelMapper.map(ticketDto, TicketResponseDto.class);
+                    return new SuccessResponse<>(ticketResponseDto).getResponse();
+                });
     }
 }
