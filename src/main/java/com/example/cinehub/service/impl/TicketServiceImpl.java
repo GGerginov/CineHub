@@ -6,6 +6,7 @@ import com.example.cinehub.exception.ApiException;
 import com.example.cinehub.exception.jsonMessages.ErrorMessages;
 import com.example.cinehub.repository.TicketRepository;
 import com.example.cinehub.service.TicketService;
+import jakarta.persistence.OptimisticLockException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,9 +62,13 @@ public class TicketServiceImpl implements TicketService {
                     if (ticket.getIsReserved()) {
                         throw new ApiException(ErrorMessages.TICKET_IS_ALREADY_BOOKED);
                     }
-
                     ticket.setIsReserved(true);
-                    return this.modelMapper.map(this.ticketRepository.save(ticket), TicketDto.class);
+                    try{
+                        Ticket saved = this.ticketRepository.save(ticket);
+                        return this.modelMapper.map(saved, TicketDto.class);
+                    }catch (OptimisticLockException e){
+                        throw new ApiException(ErrorMessages.TICKET_IS_ALREADY_BOOKED);
+                    }
                 })
                 .subscribeOn(Schedulers.boundedElastic());
     }
