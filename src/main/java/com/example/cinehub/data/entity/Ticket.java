@@ -31,4 +31,7 @@ public class Ticket extends BaseEntity {
     @JoinColumn(name = "seat_id")
     private Seat seat;
 
+    @Version
+    private Long versionNumber;
+
 }

@@ -81,13 +81,14 @@ INSERT INTO show_time (start_time, end_time, movie_id, room_id) VALUES
 
 
 
-INSERT INTO ticket (price, ticket_type, show_time_id, seat_id, is_reserved)
+INSERT INTO ticket (price, ticket_type, show_time_id, seat_id, is_reserved,version_number)
 SELECT
     10.0, -- Fixed price for all tickets
     'REGULAR', -- Fixed ticket type for all tickets
     st.id AS show_time_id,
     s.id AS seat_id,
-    FALSE -- Assuming all seats are initially not reserved
+    FALSE ,
+    1
 FROM
     seat s
         CROSS JOIN
