@@ -8,8 +8,8 @@ import com.example.cinehub.data.entity.ShowTime;
 import com.example.cinehub.data.entity.Ticket;
 import com.example.cinehub.data.entity.TicketCategory;
 import com.example.cinehub.exception.ApiException;
-import com.example.cinehub.exception.jsonMessages.ErrorMessage;
 import com.example.cinehub.repository.TicketRepository;
+import jakarta.persistence.OptimisticLockException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import reactor.test.StepVerifier;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -25,10 +26,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TicketServiceImplTest {
@@ -55,6 +55,7 @@ public class TicketServiceImplTest {
         ticket1.setTicketType(TicketCategory.REGULAR);
         ticket1.setSeat(new Seat());
         ticket1.setShowTime(new ShowTime());
+        ticket1.setVersionNumber(1L);
 
         Ticket ticket2 = new Ticket();
         ticket2.setId(UUID.randomUUID());
@@ -63,6 +64,9 @@ public class TicketServiceImplTest {
         ticket2.setTicketType(TicketCategory.REGULAR);
         ticket2.setSeat(new Seat());
         ticket2.setShowTime(new ShowTime());
+        ticket2.setVersionNumber(1L);
+
+
 
         Ticket ticket3 = new Ticket();
         ticket3.setId(UUID.randomUUID());
@@ -71,6 +75,8 @@ public class TicketServiceImplTest {
         ticket3.setTicketType(TicketCategory.REGULAR);
         ticket3.setSeat(new Seat());
         ticket3.setShowTime(new ShowTime());
+        ticket3.setVersionNumber(1L);
+
 
         this.expectedTickets.addAll(List.of(ticket1,ticket2,ticket3));
 
@@ -86,6 +92,7 @@ public class TicketServiceImplTest {
         this.expectedTicketDtos.addAll(List.of(ticketDto1,ticketDto2,ticketDto3));
 
         lenient().when(modelMapper.map(any(), any(Type.class))).thenReturn(expectedTicketDtos);
+        lenient().when(modelMapper.map(any(Ticket.class), any())).thenReturn(expectedTicketDtos.get(0));
     }
 
     @Test
@@ -115,69 +122,57 @@ public class TicketServiceImplTest {
     }
 
     @Test
-    public void whenBookTicketByIdWithValidId_thenTicketShouldBeBooked() throws ApiException {
+    public void whenBookTicketByIdWithValidId_thenTicketShouldBeBooked() {
+
         Ticket ticket = expectedTickets.get(0);
+        ticket.setIsReserved(false);
+        TicketDto ticketDto = expectedTicketDtos.get(0);
 
-        when(ticketRepository.findById(UUID.fromString(ticket.getId().toString()))).thenReturn(Optional.of(ticket));
+        when(ticketRepository.findByIdForUpdate(ticket.getId())).thenReturn(Optional.of(ticket));
 
-        when(ticketRepository.saveAndFlush(any(Ticket.class))).thenReturn(ticket);
+        Ticket ticketUpdated = new Ticket(ticket.getTicketType(),ticket.getPrice()
+                ,ticket.getShowTime(),true, ticket.getSeat(),ticket.getVersionNumber());
 
-        TicketDto expectedTicketDto = expectedTicketDtos.get(0);
-        when(modelMapper.map(ticket, TicketDto.class)).thenReturn(expectedTicketDto);
+        when(ticketRepository.save(ticket)).thenReturn(ticketUpdated);
 
-        TicketDto actualTicketDto = ticketService.bookTicketById(ticket.getId().toString());
+        StepVerifier.create(ticketService.bookTicketById(ticket.getId().toString()))
+                .expectNext(ticketDto)
+                .verifyComplete();
 
-        assertEquals(expectedTicketDto.getId(),actualTicketDto.getId());
-        assertEquals(expectedTicketDto.getPrice(),actualTicketDto.getPrice());
-        assertEquals(expectedTicketDto.getTicketType(),actualTicketDto.getTicketType());
-        assertEquals(expectedTicketDto.getSeat(),actualTicketDto.getSeat());
-        assertEquals(expectedTicketDto.getShowTime(),actualTicketDto.getShowTime());
-        assertEquals(expectedTicketDto.getIsReserved(),actualTicketDto.getIsReserved());
+        verify(ticketRepository).save(ticket);
+        assertTrue(ticket.getIsReserved());
     }
 
-
     @Test
-    public void whenBookTicketByIdWithInvalidId_thenShouldTrow() throws ApiException {
-        Ticket ticket = expectedTickets.get(0);
+    public void whenBookTicketByIdWithInvalidId_thenShouldTrow() {
 
-
-        when(ticketRepository.findById(UUID.fromString(ticket.getId().toString()))).thenReturn(Optional.of(ticket));
-
-        when(ticketRepository.saveAndFlush(any(Ticket.class))).thenReturn(ticket);
-
-        TicketDto expectedTicketDto = expectedTicketDtos.get(0);
-        when(modelMapper.map(ticket, TicketDto.class)).thenReturn(expectedTicketDto);
-
-        TicketDto actualTicketDto = ticketService.bookTicketById(ticket.getId().toString());
-
-        assertEquals(expectedTicketDto.getId(),actualTicketDto.getId());
-        assertEquals(expectedTicketDto.getPrice(),actualTicketDto.getPrice());
-        assertEquals(expectedTicketDto.getTicketType(),actualTicketDto.getTicketType());
-        assertEquals(expectedTicketDto.getSeat(),actualTicketDto.getSeat());
-        assertEquals(expectedTicketDto.getShowTime(),actualTicketDto.getShowTime());
-        assertEquals(expectedTicketDto.getIsReserved(),actualTicketDto.getIsReserved());
-    }
-
-
-    @Test
-    public void whenBookTicketByIdWithInvalidId_thenExceptionShouldBeThrown() {
         String invalidId = "invalid-uuid";
 
-        ErrorMessage errorMessage = assertThrows(ApiException.class, () -> ticketService.bookTicketById(invalidId))
-                .getErrorMessage();
-
-        assertEquals(422,errorMessage.getErrCode());
-        assertEquals("Ticket id is not valid",errorMessage.getErrMsg());
+        StepVerifier.create(this.ticketService.bookTicketById(invalidId))
+                .expectErrorMatches(throwable -> {
+                    if (throwable instanceof ApiException e) {
+                        assertEquals(e.getErrorMessage().getErrMsg(),"Ticket id is not valid");
+                        assertEquals(e.getErrorMessage().getErrCode(),422);
+                        return true;
+                    }
+                    return false;
+                })
+                .verify();
     }
-
 
     @Test
     public void whenBookTicketByIdWhenIdNotExist_thenExceptionShouldBeThrown() {
 
-        ErrorMessage errorMessage = assertThrows(ApiException.class, () -> ticketService.bookTicketById(UUID.randomUUID().toString())).getErrorMessage();
-
-        assertEquals(404,errorMessage.getErrCode());
-        assertEquals("Ticket is not found",errorMessage.getErrMsg());
+        StepVerifier.create(this.ticketService.bookTicketById(UUID.randomUUID().toString()))
+                .expectErrorMatches(throwable -> {
+                    if (throwable instanceof ApiException e) {
+                        assertEquals(e.getErrorMessage().getErrMsg(),"Ticket is not found");
+                        assertEquals(e.getErrorMessage().getErrCode(),404);
+                        return true;
+                    }
+                    return false;
+                })
+                .verify();
     }
 
 
@@ -187,12 +182,38 @@ public class TicketServiceImplTest {
         Ticket ticket = expectedTickets.get(0);
         ticket.setIsReserved(true);
 
-        when(ticketRepository.findById(any())).thenReturn(Optional.of(ticket));
+        when(ticketRepository.findByIdForUpdate(ticket.getId())).thenReturn(Optional.of(ticket));
 
-        ErrorMessage errorMessage = assertThrows(ApiException.class, () -> ticketService.bookTicketById(UUID.randomUUID().toString())).getErrorMessage();
+        StepVerifier.create(this.ticketService.bookTicketById(ticket.getId().toString()))
+                .expectErrorMatches(throwable -> {
+                    if (throwable instanceof ApiException e) {
+                        assertEquals(e.getErrorMessage().getErrMsg(),"Ticket is already booked");
+                        assertEquals(e.getErrorMessage().getErrCode(),409);
+                        return true;
+                    }
+                    return false;
+                })
+                .verify();
+    }
 
-        assertEquals(409,errorMessage.getErrCode());
-        assertEquals("Ticket is already booked",errorMessage.getErrMsg());
+    @Test
+    public void whenBookTicketByIdWhenIsChangedParallel_thenShouldThrow() {
+
+        Ticket ticket = expectedTickets.get(0);
+
+        when(ticketRepository.findByIdForUpdate(ticket.getId())).thenReturn(Optional.of(ticket));
+        when(ticketRepository.save(any(Ticket.class))).thenThrow(new OptimisticLockException());
+
+        StepVerifier.create(this.ticketService.bookTicketById(ticket.getId().toString()))
+                .expectErrorMatches(throwable -> {
+                    if (throwable instanceof ApiException e) {
+                        assertEquals(e.getErrorMessage().getErrMsg(),"Ticket is already booked");
+                        assertEquals(e.getErrorMessage().getErrCode(),409);
+                        return true;
+                    }
+                    return false;
+                })
+                .verify();
     }
 
 }

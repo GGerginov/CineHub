@@ -60,4 +60,12 @@ public class ErrorResponse {
                 new ErrorResponseBody<>(errors),
                 httpStatus);
     }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
+    public List<ErrorMessage> getErrors() {
+        return errors;
+    }
 }

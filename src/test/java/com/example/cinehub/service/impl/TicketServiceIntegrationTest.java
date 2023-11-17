@@ -3,7 +3,6 @@ package com.example.cinehub.service.impl;
 import com.example.cinehub.data.dtos.TicketDto;
 import com.example.cinehub.data.entity.Ticket;
 import com.example.cinehub.exception.ApiException;
-import com.example.cinehub.exception.jsonMessages.ErrorMessage;
 import com.example.cinehub.repository.TicketRepository;
 import com.example.cinehub.service.TicketService;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +19,10 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,44 +53,71 @@ class TicketServiceIntegrationTest {
         redis.start();
     }
 
+
     @Test
-    void whenBookTicketByIdWhenAlreadyBooked_shouldThrow() {
+    void whenBookAvailableTicket_thenShouldBookSuccessfully() {
 
-        Ticket ticket = this.ticketRepository.findAll().get(0);
+        Ticket expected = ticketRepository.findAll().get(0);
 
-        ticket.setIsReserved(true);
+        TicketDto actual = ticketService.bookTicketById(expected.getId().toString()).block();
 
-        this.ticketRepository.saveAndFlush(ticket);
+        assertNotNull(actual);
+        assertEquals(expected.getTicketType(),actual.getTicketType());
+        assertTrue(actual.getIsReserved());
+        assertEquals(expected.getSeat().getSeatNumber(),actual.getSeat().getSeatNumber());
+        assertEquals(expected.getSeat().getRowNumber(),actual.getSeat().getRowNumber());
 
-        ErrorMessage errorMessage = assertThrows(ApiException.class, () ->
-                this.ticketService.bookTicketById(ticket.getId().toString()))
-                .getErrorMessage();
-
-        assertEquals(409,errorMessage.getErrCode());
-        assertEquals("Ticket is already booked",errorMessage.getErrMsg());
+        Ticket updatedTicket = ticketRepository.findById(actual.getId()).orElseThrow();
+        assertTrue(updatedTicket.getIsReserved());
     }
 
+    @Test
+    void whenBookTicketByIdThatIsAlreadyBooked_shouldThrowException() {
+
+        Ticket ticket = ticketRepository.findAll().get(1);
+        ticket.setIsReserved(true);
+        ticketRepository.saveAndFlush(ticket);
+
+        StepVerifier.create(ticketService.bookTicketById(ticket.getId().toString()))
+                .expectErrorMatches(throwable -> {
+                    if (throwable instanceof ApiException e) {
+                        assertEquals(e.getErrorMessage().getErrMsg(),"Ticket is already booked");
+                        assertEquals(e.getErrorMessage().getErrCode(),409);
+                        return true;
+                    }
+                    return false;
+                })
+                .verify();
+    }
+
+    @Test
+    void whenBookTicketByNotFoundId_shouldThrow() {
+
+        StepVerifier.create(ticketService.bookTicketById(UUID.randomUUID().toString()))
+                .expectErrorMatches(throwable -> {
+                    if (throwable instanceof ApiException e) {
+                        assertEquals("Ticket is not found",e.getErrorMessage().getErrMsg());
+                        assertEquals(404,e.getErrorMessage().getErrCode());
+                        return true;
+                    }
+                    return false;
+                })
+                .verify();
+    }
 
     @Test
     void whenBookTicketByInvalidId_shouldThrow() {
 
-        ErrorMessage errorMessage = assertThrows(ApiException.class, () ->
-                this.ticketService.bookTicketById("invalid")
-        ).getErrorMessage();
-
-        assertEquals(422,errorMessage.getErrCode());
-        assertEquals("Ticket id is not valid",errorMessage.getErrMsg());
-    }
-
-    @Test
-    void whenBookTicketById_shouldReturn() throws ApiException {
-
-        Ticket ticket = this.ticketRepository.findAll().get(0);
-
-        TicketDto ticketDto = this.ticketService.bookTicketById(ticket.getId().toString());
-
-        assertEquals(ticket.getId(),ticketDto.getId());
-        assertTrue(ticketDto.getIsReserved());
+        StepVerifier.create(ticketService.bookTicketById("invalid id"))
+                .expectErrorMatches(throwable -> {
+                    if (throwable instanceof ApiException e) {
+                        assertEquals("Ticket id is not valid",e.getErrorMessage().getErrMsg());
+                        assertEquals(422,e.getErrorMessage().getErrCode());
+                        return true;
+                    }
+                    return false;
+                })
+                .verify();
     }
 
     @Test
@@ -114,7 +142,6 @@ class TicketServiceIntegrationTest {
             assertEquals(expected.get(i).getSeat().getSeatNumber(),actual.get(i).getSeat().getSeatNumber());
             assertEquals(expected.get(i).getSeat().getRowNumber(),actual.get(i).getSeat().getRowNumber());
         }
-        
-        
+
     }
 }
