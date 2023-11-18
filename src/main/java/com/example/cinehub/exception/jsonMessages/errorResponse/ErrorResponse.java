@@ -3,6 +3,7 @@ package com.example.cinehub.exception.jsonMessages.errorResponse;
 
 import com.example.cinehub.exception.ApiException;
 import com.example.cinehub.exception.jsonMessages.ErrorMessage;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -11,6 +12,7 @@ import org.springframework.validation.ObjectError;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class ErrorResponse {
 
     private HttpStatus httpStatus;
@@ -61,11 +63,4 @@ public class ErrorResponse {
                 httpStatus);
     }
 
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
-    }
-
-    public List<ErrorMessage> getErrors() {
-        return errors;
-    }
 }
