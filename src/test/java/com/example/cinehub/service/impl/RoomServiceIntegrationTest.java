@@ -91,10 +91,4 @@ class RoomServiceIntegrationTest {
         }
 
     }
-
-    @Test
-    void findRoomWithMoviesInRange() {
-
-
-    }
 }

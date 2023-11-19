@@ -87,6 +87,7 @@ CREATE TABLE ticket
     show_time_id UUID  NOT NULL ,
     is_reserved  BOOLEAN DEFAULT FALSE          NOT NULL,
     seat_id      UUID NOT NULL ,
+    version_number BIGINT DEFAULT 1 NOT NULL ,
     CONSTRAINT pk_ticket PRIMARY KEY (id)
 );
 

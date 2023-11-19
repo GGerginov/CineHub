@@ -41,7 +41,7 @@ public class TicketResponseDto {
     @JsonProperty("seat_row")
     Integer seatRow;
 
-    @JsonProperty("seatNumber")
+    @JsonProperty("seat_number")
     Integer seatNumber;
 
     @JsonProperty("room_number")

@@ -65,4 +65,12 @@ public class ErrorResponseDTO {
                 new ErrorResponseJson<>(errors),
                 httpStatus);
     }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
+    public List<ErrorDTO> getErrors() {
+        return errors;
+    }
 }
